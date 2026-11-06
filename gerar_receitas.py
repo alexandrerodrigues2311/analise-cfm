@@ -12,6 +12,8 @@ cities = cadastro['cities']
 years = range(2022, 2027)
 monthly = defaultdict(lambda: [None, None])
 coverage = {'receipts': {}, 'transfers': {}}
+payments = defaultdict(int)
+transfer_dates = {}
 
 def add(year, month, city, column, cents):
     entry = monthly[(year, month, city)]
@@ -28,10 +30,19 @@ with open(sys.argv[1], encoding='cp1252', newline='') as file:
         if city in cities and row['UF'].strip() == 'RS':
             cents = int(Decimal(row['ValorRecolhido'].replace(',', '.')) * 100)
             add(year, month, city, 0, cents)
+            raw_process = row['Processo'].strip()
+            process_year = row['AnoDoProcesso'].strip()
+            process = ''
+            if raw_process.isdecimal() and process_year.isdecimal():
+                digits = raw_process.zfill(6)
+                process = f'{digits[:-3]}.{digits[-3:]}/{process_year}'
+            company = row['CPF_CNPJ'].zfill(14) if row['Tipo_PF_PJ'] == 'PJ' else ''
+            payments[(year, month, city, process, company, row['Substância'].strip())] += cents
 
 for year in years:
     with gzip.open(Path(sys.argv[2]) / f'M-{year}.json.gz', 'rt', encoding='utf-8') as file:
         source = json.load(file)
+    transfer_dates[year] = source.get('collected', '')[:10]
     seen = set()
     for raw in source['rows']:
         row = {key.lower(): value for key, value in raw.items()}
@@ -51,6 +62,8 @@ assert all(coverage[k].get(2026) for k in coverage)
 assert set(city for _, _, city in monthly) == set(cities)
 payload = {
     'coverage': coverage,
+    'transferDates': transfer_dates,
+    'payments': [[*key, value] for key, value in sorted(payments.items())],
     'monthly': [[y, m, city, *values] for (y, m, city), values in sorted(monthly.items())],
 }
 (root / 'receitas.js').write_text('const receitas = ' + json.dumps(payload, separators=(',', ':')) + ';\n', encoding='utf-8')

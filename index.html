@@ -3,66 +3,85 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Painel de mineração e CFEM para nove municípios do Rio Grande do Sul.">
-<title>Análise CFM | Mineração municipal no RS</title>
+<meta name="description" content="Observatório de inteligência mineral para nove municípios do Rio Grande do Sul.">
+<title>Análise CFM · Observatório de Inteligência Mineral</title>
 <link rel="stylesheet" href="painel.css">
 <script defer src="dados.js"></script>
 <script defer src="receitas.js"></script>
 <script defer src="painel.js"></script>
 </head>
 <body>
-<header><a href="./" class="brand">Análise <b>CFM</b></a><nav aria-label="Seções"><a href="#comparar">Comparar</a><a href="#processos">Processos</a><a href="#cfem">CFEM</a><a href="#fontes">Fontes</a></nav></header>
+<header>
+<a href="./" class="brand"><strong>Análise CFM</strong><span>Observatório de Inteligência Mineral</span></a>
+<div class="toolbar"><label for="scope">Município</label><select id="scope"></select><button id="print" type="button">Imprimir / salvar PDF</button></div>
+</header>
+<nav aria-label="Seções do diagnóstico"><a href="#panorama">Panorama</a><a href="#processos">Processos</a><a href="#cfem">CFEM</a><a href="#gestao">Gestão e ACT</a><a href="#fontes">Sobre os dados</a></nav>
 <main>
-<section class="hero">
-<p class="eyebrow">RIO GRANDE DO SUL · 9 MUNICÍPIOS</p>
-<h1>Mineração no território</h1>
-<p>Compare os registros da ANM e explore as fases e substâncias dos processos de cada município. Entenda a diferença entre arrecadação mineral e receita da prefeitura.</p>
-<a class="cta" href="#comparar">Explorar os municípios ↓</a>
-<a class="secondary" href="candiota.html">Diagnóstico original de Candiota ↗</a>
-</section>
-<section id="comparar">
-<p class="eyebrow">01 · VISÃO REGIONAL</p><h2>Onde estão os processos?</h2>
-<p>Selecione um município para ver seus registros. Um mesmo processo pode constar em mais de um município.</p>
-<div id="comparison" class="comparison"></div>
+<section id="panorama">
+<div class="hero">
+<div><p class="eyebrow">RIO GRANDE DO SUL · INTELIGÊNCIA MINERAL</p><h1 id="title">Visão geral dos municípios</h1><p id="lead"></p></div>
+<aside class="stamp"><b>Referência do diagnóstico</b><span id="today"></span><small id="snapshot"></small></aside>
+</div>
+<div id="metrics" class="stats"></div>
+<p id="overview-story"></p>
+<p class="note"><strong>Processo ativo no cadastro não comprova mina em operação.</strong> Os registros mostram a situação administrativa dos processos. Consulte os documentos e as licenças para confirmar a atividade.</p>
+<div id="regional" class="card"><p class="eyebrow">COMPARAÇÃO MUNICIPAL</p><h2>Onde estão os processos?</h2><p>Selecione um município para abrir seu diagnóstico. Um processo associado a vários municípios aparece em cada ficha e conta uma vez no total regional.</p><div id="comparison" class="comparison"></div></div>
+<div class="overview-grid">
+<article class="card"><p class="eyebrow">TRÂMITE ADMINISTRATIVO</p><h2>Em que etapa estão?</h2><div id="phases"></div></article>
+<article class="card"><p class="eyebrow">SUBSTÂNCIAS CADASTRADAS</p><h2>Perfil mineral</h2><div id="minerals"></div><p class="muted">As contagens incluem processos ativos. Um processo pode ter várias substâncias.</p></article>
+<article class="card"><p class="eyebrow">TITULARES E REQUERENTES</p><h2>Quem tem processos ativos?</h2><div id="holders"></div><p class="muted">Relações sem encerramento registrado. Um processo pode ter mais de um nome vinculado.</p></article>
+</div>
 </section>
 <section id="processos">
-<p class="eyebrow">02 · CADASTRO MINEIRO</p><h2 id="city-title">Processos minerários</h2>
+<p class="eyebrow">02 · CADASTRO MINEIRO</p><h2>Processos, nomes e fases</h2>
+<p>Abra um número de processo para consultar os títulos registrados, os eventos mais recentes e os pagamentos de CFEM vinculados no recorte.</p>
 <div class="controls">
-<label>Município<select id="city"></select></label>
 <label>Situação<select id="status"><option value="all">Todas</option><option value="S">Ativos</option><option value="N">Inativos</option></select></label>
 <label>Fase<select id="phase"></select></label>
-<label>Buscar<input id="search" type="search" placeholder="Processo ou substância"></label>
+<label>Buscar<input id="search" type="search" placeholder="Processo, titular ou substância"></label>
+<label class="check"><input id="print-full" type="checkbox"> Incluir todos os processos filtrados no PDF</label>
 </div>
-<div id="stats" class="stats" aria-live="polite"></div>
-<p class="note"><strong>Cadastro ativo não comprova operação.</strong> A fase indica a etapa administrativa. Consulte o processo na ANM para confirmar sua situação e seus documentos.</p>
-<div class="table-box"><table><thead><tr><th scope="col">Processo ANM</th><th scope="col">Situação</th><th scope="col">Fase</th><th scope="col">Substâncias sem fim de vigência registrado</th></tr></thead><tbody id="rows"></tbody></table></div>
+<p id="print-scope" class="print-only"></p>
+<p id="process-count" aria-live="polite"></p>
+<div class="table-box"><table><thead><tr><th scope="col">Processo ANM</th><th scope="col">Situação e fase</th><th scope="col">Titulares / requerentes</th><th scope="col">Substâncias</th></tr></thead><tbody id="rows"></tbody></table></div>
 <div class="pager"><button id="previous">Anterior</button><span id="page" aria-live="polite"></span><button id="next">Próxima</button></div>
 </section>
 <section id="cfem">
-<p class="eyebrow">03 · RECEITA MINERAL</p><h2>Como ler a CFEM</h2>
-<p>A Compensação Financeira pela Exploração de Recursos Minerais é paga pelas empresas e distribuída entre os beneficiários.</p>
-<div class="explainer">
-<article><h3>Arrecadação</h3><p>Pagamentos vinculados à exploração mineral no município.</p></article>
-<article><h3>Distribuição</h3><p>Repasses ao município, inclusive quando ele recebe por ser afetado pela atividade mineral.</p></article>
+<p class="eyebrow">03 · RECEITA MINERAL</p><h2>CFEM: pagamentos e repasses</h2>
+<p>A arrecadação registra os pagamentos pela exploração mineral no território. Os repasses são os valores que entraram para as prefeituras, inclusive quando o município recebe por ser afetado pela mineração.</p>
+<div class="overview-grid finance-grid">
+<article class="card"><h3>Evolução anual</h3><div id="finance-history"></div></article>
+<article class="card"><h3>O que mudou no período</h3><div id="finance-story"></div><p class="muted">As séries seguem calendários distintos. Diferenças entre elas não medem dívida ou perda de receita.</p></article>
 </div>
-<div class="controls">
-<label>Ano da comparação<select id="finance-year"></select></label>
-</div>
+<div class="controls"><label>Ano da análise financeira<select id="finance-year"></select></label></div>
 <p id="finance-period" class="note"></p>
-<div class="table-box"><table><caption>Comparação entre municípios</caption><thead><tr><th scope="col">Município</th><th scope="col">Arrecadação · ANM</th><th scope="col">Repasses · Tesouro</th></tr></thead><tbody id="finance-rows"></tbody></table></div>
-<div class="controls"><label>Município da série histórica<select id="finance-city"></select></label></div>
-<div class="table-box"><table><caption>Série anual por município</caption><thead><tr><th scope="col">Período</th><th scope="col">Arrecadação · ANM</th><th scope="col">Repasses · Tesouro</th></tr></thead><tbody id="finance-history"></tbody></table></div>
-<p>Valores nominais. O travessão indica ausência de registros no recorte. As duas fontes têm calendários próprios e os valores não servem para estimar dívida ou perda de receita por subtração.</p>
-<p><a href="https://www.gov.br/anm/pt-br/assuntos/acesso-a-sistemas/portal-sigmine/destaques-sigmine/painel-interativo-da-cfem">Consultar o painel oficial de CFEM ↗</a> · <a href="candiota.html#cfem">Ver o detalhamento original de Candiota ↗</a></p>
+<div id="finance-comparison"></div>
+<div class="overview-grid finance-grid">
+<article class="card"><h3>Pagamentos e repasses por mês</h3><div id="finance-monthly"></div></article>
+<article class="card"><h3>Quem recolheu CFEM?</h3><div id="payers"></div><p class="muted">Pessoas físicas aparecem agrupadas, sem identificação. Os nomes empresariais vêm do Cadastro Mineiro quando disponíveis.</p></article>
+<article class="card"><h3>Substâncias nos pagamentos</h3><div id="paid-minerals"></div></article>
+<article class="card"><h3>Processos com pagamentos</h3><div id="paid-processes"></div></article>
+</div>
+</section>
+<section id="gestao">
+<p class="eyebrow">04 · GESTÃO MUNICIPAL</p><h2>Uma agenda para o município</h2>
+<div class="overview-grid">
+<article class="card"><h3>Confirmar as operações</h3><p id="agenda-mineral"></p></article>
+<article class="card"><h3>Acompanhar a receita</h3><p>Use os pagamentos por processo e os repasses mensais para orientar a conferência com os registros do município. Investigue mudanças de calendário e composição antes de atribuir causas.</p></article>
+<article class="card"><h3>Organizar a cooperação</h3><p>Consulte a ANM sobre a situação do Acordo de Cooperação Técnica e as etapas de adesão e capacitação. Este painel não verifica a vigência de acordos por município.</p><a href="https://www.gov.br/anm/pt-br/acesso-a-informacao/convenios-e-transferencias/acordo-de-cooperacao-tecnica-act">Orientações da ANM sobre ACT ↗</a></article>
+</div>
 </section>
 <section id="fontes">
-<p class="eyebrow">04 · METODOLOGIA</p><h2>Fontes e critérios</h2>
-<p>O recorte usa os códigos municipais do Cadastro Mineiro. Cada processo é contado uma vez por município. A presença no cadastro não mede a área ocupada nem comprova produção. As substâncias exibidas são aquelas sem data de fim de vigência no arquivo.</p>
-<p id="snapshot"></p><p>A série financeira reúne os pagamentos do arquivo de arrecadação da ANM consultado em 02/11/2026 e os repasses municipais da rubrica Royalties – CFEM do Tesouro Nacional. Em 2026, a ANM tem registros até outubro e o Tesouro até setembro nas cópias usadas. O painel compara as duas séries até setembro.</p><p><a href="https://dadosabertos.anm.gov.br/CFEM/">Arquivos de CFEM da ANM ↗</a> · <a href="https://sisweb.tesouro.gov.br/apex/f?p=2600:1">Transferências do Tesouro Nacional ↗</a></p>
-<p><a href="https://www.gov.br/anm/pt-br/assuntos/acesso-a-sistemas/cadastro-mineiro">Cadastro Mineiro da ANM ↗</a> · <a href="https://github.com/alexandrerodrigues2311/candiota_rs">Projeto original ↗</a></p>
+<p class="eyebrow">05 · TRANSPARÊNCIA</p><h2>Como ler este diagnóstico</h2>
+<div class="overview-grid">
+<article class="card"><h3>Território</h3><p>O recorte usa os vínculos de ProcessoMunicipio. A área informada na ficha é a área total cadastrada do processo. Para medir a parte dentro de um município, é necessário cruzar as poligonais com o limite municipal.</p></article>
+<article class="card"><h3>Titulares, fases e substâncias</h3><p>O painel apresenta o recorte cadastral do arquivo, com titulares/requerentes e substâncias sem encerramento registrado. Use a ficha da ANM para confirmar a situação de cada título.</p></article>
+<article class="card"><h3>Dados financeiros</h3><p id="financial-source"></p><p>Valores nominais. Um travessão indica ausência de registro na fonte para o recorte.</p></article>
+</div>
+<p><a href="https://www.gov.br/anm/pt-br/assuntos/acesso-a-sistemas/cadastro-mineiro">Cadastro Mineiro ↗</a> · <a href="https://dadosabertos.anm.gov.br/CFEM/">CFEM da ANM ↗</a> · <a href="https://sisweb.tesouro.gov.br/apex/f?p=2600:1">Tesouro Nacional ↗</a> · <a href="candiota.html">Diagnóstico de Candiota que serviu de referência ↗</a></p>
 </section>
 </main>
-<footer>Análise CFM · Consulta municipal de mineração</footer>
+<dialog id="detail" aria-labelledby="detail-title"><form method="dialog"><button aria-label="Fechar ficha">Fechar</button></form><div id="detail-content"></div></dialog>
+<footer>Análise CFM · Observatório de Inteligência Mineral</footer>
 </body>
 </html>
-
